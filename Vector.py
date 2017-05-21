@@ -3,14 +3,9 @@ from math import sqrt
 from random import randint
 
 def f2s(a):
-    MAX_LEN = 7
+    MAX_LEN = 1
 
-    if isinstance(a, int):
-        return str(a).rjust(MAX_LEN+1, ' ')
-
-    a = round(a, 3)
-    if abs(a) < 0.001:
-        a = 0.0
+    a = int(a)
 
     if a >= 0:
         return ' ' + str(a).ljust(MAX_LEN, '0')[:MAX_LEN]
