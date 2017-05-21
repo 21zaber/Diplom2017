@@ -3,14 +3,11 @@ from math import sqrt
 from random import randint
 
 def f2s(a):
-    MAX_LEN = 1
+    MAX_LEN = 4
 
     a = int(a)
 
-    if a >= 0:
-        return ' ' + str(a).ljust(MAX_LEN, '0')[:MAX_LEN]
-    else:
-        return str(a).ljust(MAX_LEN+1, '0')[:MAX_LEN+1]
+    return str(a).rjust(MAX_LEN, ' ')
 
 class Vector(list):
 

@@ -1,7 +1,6 @@
 from Matrix import Matrix
 from Vector import Vector
 
-from pprint import pprint
 from copy import deepcopy as copy
 
 class HadamardMatrix(Matrix):
@@ -43,18 +42,13 @@ class HadamardMatrix(Matrix):
         return C
 
     def get_generator(h):
-        elems = [tuple(i) for i in h]
-        
-        n = len(elems)
-        a = Matrix.new(n=n, m=1)
-
-        for i in range(n):
-            a[i] = Vector([(1-j)/2 for j in elems[i]])
-            elems[i] = copy(a[i])
-
+        a = h.get_code()
+        elems = copy(a)
+        n = len(a)
+        m = len(a[0])
         rows = [i for i in range(n)]
 
-        for i in range(n):
+        for i in range(m):
             mx = i
             for j in range(i, n):
                 if abs(a[j][i]) > abs(a[mx][i]):
@@ -66,7 +60,7 @@ class HadamardMatrix(Matrix):
 
             for j in range(i+1, n):
                 koef = a[j][i] / a[i][i]
-                for k in range(i, n):
+                for k in range(i, m):
                     a[j][k] -= a[i][k] * koef
 
         G = Matrix.new(n=0, m=0)
@@ -80,8 +74,6 @@ class HadamardMatrix(Matrix):
         hn = h.normalize()
 
         hn = HadamardMatrix(hn[1:])
-        for i in range(len(hn)):
-            hn[i] = Vector(hn[i][1:])
 
         C = hn.get_code()
         D1 = Matrix.new(n=0, m=0)
@@ -100,15 +92,13 @@ class HadamardMatrix(Matrix):
         return (D1, D3)
 
 def test():
-    m = HadamardMatrix.new(n=8, m=8)
-    m[0] = Vector.read(" 1  1  1  1  1  1  1  1")
-    m[1] = Vector.read(" 1 -1  1 -1  1 -1  1 -1")
-    m[2] = Vector.read(" 1  1 -1 -1  1  1 -1 -1")
-    m[3] = Vector.read(" 1 -1 -1  1  1 -1 -1  1")
-    m[4] = Vector.read(" 1  1  1  1 -1 -1 -1 -1")
-    m[5] = Vector.read(" 1 -1  1 -1 -1  1 -1  1")
-    m[6] = Vector.read(" 1  1 -1 -1 -1 -1  1  1")
-    m[7] = Vector.read(" 1 -1 -1  1 -1  1  1 -1")
+    n = int(input())
+    m = HadamardMatrix.new(n=n)
+    for i in range(n):
+        s = input()
+        print(s)
+        l = [[1, -1][j!='+'] for j in s]
+        m[i] = Vector(l)
 
     print("Tested matrix: ")
     print(m)
