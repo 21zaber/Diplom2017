@@ -1,38 +1,10 @@
-from Hadamard import HadamardMatrix
+from Hadamard import HadamardMatrix, solve_sole
 from Matrix import Matrix
 from Vector import Vector
 
 from copy import deepcopy as copy
 from random import randint
 
-def solve_slay(a):
-    n = len(a)
-    m = len(a[0])
-
-    for i in range(m-1):
-        mx = i
-        for j in range(i, n):
-            if abs(a[j][i]) > abs(a[mx][i]):
-                mx = j
-        if abs(a[mx][i]) < 0.00001:
-            continue
-        a[mx], a[i] = a[i], a[mx]
-
-        for j in range(i+1, n):
-            koef = a[j][i] / a[i][i]
-            for k in range(i, m):
-                a[j][k] -= a[i][k] * koef
-
-    a = Matrix(a[:m-1])
-    print()
-    print(a)
-    x = [0 for i in range(m-1)]
-    for i in range(m-2, -1, -1):
-        x[i] = a[i][-1] / a[i][i] 
-        for j in range(i):
-            a[j][-1] -= a[j][i] / a[i][i] * a[i][-1]
-
-    return Vector(x)
 
 
 class HSSS():
@@ -55,9 +27,9 @@ class HSSS():
 
     def cover(self, s):
         G0 = self.G.get_col(0).list()
-        z = [randint(0, 100) for i in range(len(G0))]
-        z[0] = 0
+        z = [randint(-100000, 100000)/100 for i in range(len(G0))]
         sm = -s
+
         for i in range(len(G0)):
             sm += G0[i] * z[i]
 
@@ -65,9 +37,11 @@ class HSSS():
             for i in range(len(G0)):
                 if G0[i] != 0:
                     sm -= G0[i] * z[i]
-                    z[i] = G0[i]
+                    z[i] = -sm
                     break
-
+        print("z: ")
+        print(z)
+        print()
         z = Matrix([z])
         u = z * self.G
         return u.list()[1:]
@@ -82,7 +56,7 @@ class HSSS():
         a = a.transpose()
         print("a: ", a, sep='\n')
 
-        x = solve_slay(a)
+        x = solve_sole(a)
         print("x: ", x, sep='\n')
 
         s = sum([x[i] * parts[i][1] for i in range(len(x))])
@@ -92,19 +66,19 @@ class HSSS():
     def recover(self, parts):
         """ parts = [(i1, Ui1), (i2, Ui2), ...] """
 
-        if parts[0][0] != 1 or parts[1][0] != 2:
-            raise Exception("Error: first two participants must be 1 and 2.")
+       #if parts[0][0] != 1 or parts[1][0] != 2:
+       #    raise Exception("Error: first two participants must be 1 and 2.")
 
         s = self._recover_part(self.G, parts)
         
-        G = copy(self.G)
-        for i in range(len(G)):
-            G[i][0] = G[i][2] - G[i][0] - G[i][1]
+       #G = copy(self.G)
+       #for i in range(len(G)):
+       #    G[i][0] = G[i][2] - G[i][0] - G[i][1]
+       #
+       #s2 = self._recover_part(G, parts[2:])
 
-        s2 = self._recover_part(G, parts[2:])
-
-        print(s - s2)
-        print(s + s2)
+        print("s: ", s)
+        #print("s2: ", s2)
         return s
 
 
@@ -117,25 +91,29 @@ def test():
         l = [[1, -1][j!='+'] for j in s]
         m[i] = Vector(l)
 
-    scheme = HSSS(m, n-3)
+    scheme = HSSS(m, n-1)
 
+    print("H: ")
+    print(m)
     u = scheme.cover(123)
+    print("u: ")
     print(u)
     print()
-   #print("D1")
-   #print(scheme.D1)
-    print("G")
+    print("C")
+    print(scheme.C)
+    print("G {}x{}".format(len(scheme.G), len(scheme.G[0])))
     print(scheme.G)
     print()
     print()
 
-    users = [3,4,6]
-    users = [5,7,9]
-    users = [8,10,11]
-    users = list(range(2, 11))
-    users = list(range(2, 7))
+    users = [3,4,6, 9, 12]
+   #users = [5,7,9]
+   #users = [8,10,11]
+   #users = list(range(2, 11))
+    users = list(range(4))
 
-    s = scheme.recover([(i+1, u[i]) for i in [0,1] + users])
+   #s = scheme.recover([(i+1, u[i]) for i in [0,1] + users])
+    s = scheme.recover([(i+1, u[i]) for i in users])
     print(s)
 
 if __name__ == "__main__":
