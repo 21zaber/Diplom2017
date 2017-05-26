@@ -20,7 +20,7 @@ class Matrix(Vector):
         m = cls.new(n, m)
         for v in m:
             for i in range(len(v)):
-                v[i] = randint(0, 100)# / 1000
+                v[i] = randint(0, 100)
         return m
     
     def __str__(self):

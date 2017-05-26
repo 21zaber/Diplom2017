@@ -2,12 +2,31 @@ from copy import deepcopy
 from math import sqrt
 from random import randint
 
-def f2s(a):
+def _f2s(a):
+    """ Format integer number"""
+
     MAX_LEN = 4
 
     a = int(a)
 
     return str(a).rjust(MAX_LEN, ' ')
+
+def f2s(a):
+    """ Format float number"""
+
+    MAX_LEN = 5
+
+    if isinstance(a, int):
+        return str(a).rjust(MAX_LEN+1, ' ')
+
+    a = float(round(a, 3))
+    if abs(a) < 0.001:
+        a = 0.0
+
+    if a >= 0:
+        return ' ' + str(a).ljust(MAX_LEN, '0')[:MAX_LEN]
+    else:
+        return str(a).ljust(MAX_LEN+1, '0')[:MAX_LEN+1]
 
 class Vector(list):
 
@@ -32,12 +51,6 @@ class Vector(list):
             return sum([a[i] * b[i] for i in range(len(a))])
 
         raise Exception("Wrong argument type {}".format(type(b)))
-
- #  def __rmul__(a, b):
- #      if isinstance(b, (int, float)):
- #          return Vector([i * b for i in a])
- #
- #      raise Exception("Wrong argument type {}".format(type(b)))
 
     def __truediv__(a, b):
         if isinstance(b, (int, float)):
@@ -78,12 +91,6 @@ class Vector(list):
 
     def __abs__(self):
         return sqrt(sum(i ** 2 for i in self))
-   #    c = 0
-   #    for i in self:
-   #        a = abs(i)
-   #        if a > c:
-   #            c = a
-   #    return c
 
     @staticmethod
     def read(s):

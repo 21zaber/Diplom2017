@@ -39,26 +39,17 @@ class HSSS():
                     sm -= G0[i] * z[i]
                     z[i] = -sm
                     break
-        print("z: ")
-        print(z)
-        print()
         z = Matrix([z])
         u = z * self.G
         return u.list()[1:]
 
-    def _recover_part(selfi, G, parts):
-        print("recover_part")
-        print("G: ", G, sep='\n')
+    def _recover(selfi, G, parts):
         a = Matrix.new(n=len(parts)+1)
         for i in range(len(parts)):
             a[i] = G.get_col(parts[i][0]).list()
         a[-1] = G.get_col(0).list()
         a = a.transpose()
-        print("a: ", a, sep='\n')
-
         x = solve_sole(a)
-        print("x: ", x, sep='\n')
-
         s = sum([x[i] * parts[i][1] for i in range(len(x))])
 
         return s
@@ -66,19 +57,7 @@ class HSSS():
     def recover(self, parts):
         """ parts = [(i1, Ui1), (i2, Ui2), ...] """
 
-       #if parts[0][0] != 1 or parts[1][0] != 2:
-       #    raise Exception("Error: first two participants must be 1 and 2.")
-
-        s = self._recover_part(self.G, parts)
-        
-       #G = copy(self.G)
-       #for i in range(len(G)):
-       #    G[i][0] = G[i][2] - G[i][0] - G[i][1]
-       #
-       #s2 = self._recover_part(G, parts[2:])
-
-        print("s: ", s)
-        #print("s2: ", s2)
+        s = self._recover(self.G, parts)
         return s
 
 
@@ -95,7 +74,9 @@ def test():
 
     print("H: ")
     print(m)
-    u = scheme.cover(123)
+    secret = randint(0, 100000)
+    print("secret:", secret)
+    u = scheme.cover(secret)
     print("u: ")
     print(u)
     print()
@@ -106,15 +87,13 @@ def test():
     print()
     print()
 
-    users = [3,4,6, 9, 12]
-   #users = [5,7,9]
-   #users = [8,10,11]
-   #users = list(range(2, 11))
-    users = list(range(4))
-
-   #s = scheme.recover([(i+1, u[i]) for i in [0,1] + users])
-    s = scheme.recover([(i+1, u[i]) for i in users])
-    print(s)
+    for i in range(1000):
+        user_idx = set()
+        while len(user_idx) < 7:
+            user_idx.add(randint(0, n-2))
+        s = scheme.recover([(i+1, u[i]) for i in user_idx])
+        if abs(s - secret) < 0.0001:
+            print(', '.join(list(map(str, user_idx))))
 
 if __name__ == "__main__":
     test()
