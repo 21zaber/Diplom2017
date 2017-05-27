@@ -1,3 +1,6 @@
+
+Secret-sharing scheme based on Hadamard matrixes.
+
 Example of usage:
     1. Cover:
         >>>$ ./main.py h24 -c 123
@@ -31,3 +34,5 @@ Example of usage:
         >>>$ ./main.py h24 -r 1 347.83 12 -263.6400000000001 13 -488.4700000000001
         Recovered secret: 123
 
+
+Written by Zabarin Nikita. Moscow Aviation Institute 2017
