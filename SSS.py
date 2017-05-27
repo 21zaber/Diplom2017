@@ -9,18 +9,15 @@ from random import randint
 
 class HSSS():
     """ Secret-Sharing scheme based on Hadamard matrix. """
-    def __init__(self, H, n):
+    def __init__(self, H):
         """ 
             H - Hadamard matrix,
             n - number of participants
         """
         
         H.check()
-        if len(H) < n-1:
-            raise Exception("Error: dimension of a matrix is less than number of participants")
 
         self.H = H
-        self.n = n
         self.C = H.get_code()
         self.G = H.get_generator()
         self.D1, self.D3 = H.get_scheme()
@@ -43,22 +40,30 @@ class HSSS():
         u = z * self.G
         return u.list()[1:]
 
-    def _recover(selfi, G, parts):
+    def _recover(self, parts):
         a = Matrix.new(n=len(parts)+1)
         for i in range(len(parts)):
-            a[i] = G.get_col(parts[i][0]).list()
-        a[-1] = G.get_col(0).list()
+            a[i] = self.G.get_col(parts[i][0]).list()
+        a[-1] = self.G.get_col(0).list()
         a = a.transpose()
         x = solve_sole(a)
         s = sum([x[i] * parts[i][1] for i in range(len(x))])
 
         return s
 
+    def _check_parts(self, parts):
+        t = Matrix([self.D1.get_col(i[0]).list() for i in parts])
+        t = [sum(t.get_col(i).list()) for i in range(len(t[0]))]
+        t = [int(i > 0) for i in t]
+        return len(t) == sum(t)
+
     def recover(self, parts):
         """ parts = [(i1, Ui1), (i2, Ui2), ...] """
 
-        s = self._recover(self.G, parts)
-        return s
+        if not self._check_parts(parts):
+            raise Exception("Error: that parts cannot recover secret")
+
+        return self._recover(parts)
 
 
 
@@ -70,7 +75,7 @@ def test():
         l = [[1, -1][j!='+'] for j in s]
         m[i] = Vector(l)
 
-    scheme = HSSS(m, n-1)
+    scheme = HSSS(m)
 
     print("H: ")
     print(m)
@@ -80,20 +85,25 @@ def test():
     print("u: ")
     print(u)
     print()
-    print("C")
+    print("C {}x{}".format(len(scheme.C), len(scheme.C[0])))
     print(scheme.C)
+    print("D1 {}x{}".format(len(scheme.D1), len(scheme.D1[0])))
+    print(scheme.D1)
     print("G {}x{}".format(len(scheme.G), len(scheme.G[0])))
     print(scheme.G)
     print()
-    print()
 
-    for i in range(1000):
+    for i in range(10000):
         user_idx = set()
-        while len(user_idx) < 7:
+        parts_size = randint(2, 14)
+        while len(user_idx) < parts_size:
             user_idx.add(randint(0, n-2))
-        s = scheme.recover([(i+1, u[i]) for i in user_idx])
+        parts = [(i+1, u[i]) for i in user_idx]
+        s = scheme._recover(parts)
         if abs(s - secret) < 0.0001:
-            print(', '.join(list(map(str, user_idx))))
+            if not scheme._check_parts(parts):
+                print("Error")
+                print(parts)
 
 if __name__ == "__main__":
     test()
